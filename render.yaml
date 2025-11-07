@@ -14,18 +14,29 @@ services:
       - key: SECRET_KEY_BASE
         generateValue: true
       - key: REDIS_URL
-        fromService: redis
+        fromService:
+          type: redis
+          name: chatwoot-redis
+          property: connectionString
       - key: POSTGRES_HOST
-        fromDatabase: chatwoot-db
+        fromDatabase:
+          name: chatwoot-db
+          property: host
       - key: POSTGRES_USERNAME
-        fromDatabase: chatwoot-db
+        fromDatabase:
+          name: chatwoot-db
+          property: user
       - key: POSTGRES_PASSWORD
-        fromDatabase: chatwoot-db
+        fromDatabase:
+          name: chatwoot-db
+          property: password
       - key: POSTGRES_DB
-        fromDatabase: chatwoot-db
+        fromDatabase:
+          name: chatwoot-db
+          property: database
 
   - type: redis
-    name: redis
+    name: chatwoot-redis
     plan: free
 
 databases:
