@@ -10,7 +10,7 @@ services:
       - key: RAILS_ENV
         value: production
       - key: FRONTEND_URL
-        value: https://chatwoot.onrender.com
+        value: https://tu-subdominio.onrender.com
       - key: SECRET_KEY_BASE
         generateValue: true
       - key: REDIS_URL
@@ -24,11 +24,10 @@ services:
       - key: POSTGRES_DB
         fromDatabase: chatwoot-db
 
-databases:
-  - name: chatwoot-db
-    plan: free
-
-services:
   - type: redis
     name: redis
+    plan: free
+
+databases:
+  - name: chatwoot-db
     plan: free
