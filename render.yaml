@@ -3,7 +3,7 @@ services:
     name: chatwoot
     env: docker
     plan: free
-    branch: main
+    branch: develop
     healthCheckPath: /
     autoDeploy: true
     envVars:
