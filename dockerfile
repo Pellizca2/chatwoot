@@ -1,18 +1,24 @@
-# ----------------------------
-# Dockerfile Chatwoot definitivo para Render
-# ----------------------------
-
-# Usamos la imagen oficial de Chatwoot que ya trae Ruby, Node, Yarn y todas las librerías
+# Dockerfile Chatwoot para Render
 FROM chatwoot/chatwoot:latest
 
 # Directorio de trabajo
 WORKDIR /app
 
-# Copia tu código (si hiciste un fork o modificaciones)
+# Copia el código del fork / repo
 COPY . .
+
+# Instala gems de tu proyecto
+RUN bundle config set without 'development test'
+RUN bundle install --jobs=4 --retry=3
+
+# Instala dependencias Node/Yarn si hay frontend changes
+RUN yarn install --check-files
+
+# Precompila assets
+RUN bundle exec rake assets:precompile
 
 # Exponer puerto que Render usará
 EXPOSE 10000
 
-# Comando para iniciar Chatwoot con Puma
+# Arrancar Puma
 CMD ["bundle", "exec", "puma", "-C", "config/puma.rb", "-b", "0.0.0.0", "-p", "10000"]
