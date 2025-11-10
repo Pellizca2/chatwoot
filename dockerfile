@@ -1,5 +1,5 @@
 # ----------------------------
-# Chatwoot Dockerfile para Render
+# Dockerfile Chatwoot para Render (Node + Yarn sin apt-key)
 # ----------------------------
 
 FROM ruby:3.2
@@ -18,22 +18,20 @@ RUN apt-get update -qq && apt-get install -y \
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
-# Instala Yarn
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-    && echo "deb https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list \
-    && apt-get update && apt-get install -y yarn
+# Activa Yarn usando Corepack (ya viene con Node.js >=16)
+RUN corepack enable
 
 # Directorio de trabajo
 WORKDIR /app
 
-# Copia todos los archivos del repo
+# Copia todo el código
 COPY . .
 
 # Instala dependencias Ruby y Node
 RUN gem install bundler && bundle install
 RUN yarn install --check-files
 
-# Precompila assets
+# Precompila assets de Rails
 RUN bundle exec rake assets:precompile
 
 # Exponer puerto usado por Render
