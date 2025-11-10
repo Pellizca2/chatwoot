@@ -2,7 +2,7 @@ FROM ruby:3.2-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Instala dependencias del sistema
+# Instala todas las dependencias necesarias
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
     curl \
@@ -21,21 +21,22 @@ RUN apt-get update -qq && apt-get install -y \
     libyaml-dev \
     libgmp-dev \
     make \
+    g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Instala Node.js 20 LTS
+# Node.js 20 LTS
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
-# Yarn desde npm
+# Yarn global
 RUN npm install -g yarn
 
 WORKDIR /app
 
-# Copia Gemfile y Gemfile.lock primero
+# Copia Gemfile + Gemfile.lock para cache
 COPY Gemfile Gemfile.lock ./
 
-# Bundler + gems
+# Bundler y gems
 RUN gem install bundler -v 2.4.17
 RUN bundle config set without 'development test'
 RUN bundle install --jobs=4 --retry=3
@@ -43,10 +44,10 @@ RUN bundle install --jobs=4 --retry=3
 # Copia el resto del proyecto
 COPY . .
 
-# Instala dependencias Node/Yarn
+# Node/Yarn dependencies
 RUN yarn install --check-files
 
-# Precompila assets de Rails
+# Precompila assets
 RUN bundle exec rake assets:precompile
 
 EXPOSE 10000
