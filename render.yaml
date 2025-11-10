@@ -38,7 +38,13 @@ services:
   - type: redis
     name: chatwoot-redis
     plan: free
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: Allow all connections from Render internal network
 
 databases:
   - name: chatwoot-db
     plan: free
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: Allow all connections from Render internal network
