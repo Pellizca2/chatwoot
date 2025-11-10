@@ -1,40 +1,43 @@
-# ----------------------------
-# Dockerfile Chatwoot para Render (Node + Yarn sin apt-key)
-# ----------------------------
-
+# Dockerfile Chatwoot definitivo para Render
 FROM ruby:3.2
 
-# Instala dependencias del sistema
+# Instala dependencias del sistema necesarias para Rails y Postgres
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
     curl \
     git \
     libpq-dev \
     postgresql-client \
+    libffi-dev \
+    zlib1g-dev \
+    nodejs \
+    npm \
     vim \
     && rm -rf /var/lib/apt/lists/*
 
-# Instala Node.js 20 LTS
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
-
-# Activa Yarn usando Corepack (ya viene con Node.js >=16)
+# Instala Yarn usando Corepack (ya viene con Node >=16)
 RUN corepack enable
 
 # Directorio de trabajo
 WORKDIR /app
 
-# Copia todo el código
+# Copia Gemfile y Gemfile.lock primero para usar cache de Docker
+COPY Gemfile Gemfile.lock ./
+
+# Instala Bundler y gems
+RUN gem install bundler -v 2.4.17
+RUN bundle install --jobs=4 --retry=3
+
+# Copia el resto del proyecto
 COPY . .
 
-# Instala dependencias Ruby y Node
-RUN gem install bundler && bundle install
+# Instala dependencias Node/Yarn
 RUN yarn install --check-files
 
 # Precompila assets de Rails
 RUN bundle exec rake assets:precompile
 
-# Exponer puerto usado por Render
+# Expone el puerto usado por Render
 EXPOSE 10000
 
 # Comando para iniciar Chatwoot con Puma
