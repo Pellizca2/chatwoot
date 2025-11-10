@@ -1,9 +1,8 @@
-# Dockerfile Chatwoot definitivo para Render
 FROM ruby:3.2-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Dependencias del sistema necesarias para Rails, Chatwoot y gems nativas
+# Instala dependencias del sistema
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
     curl \
@@ -20,6 +19,7 @@ RUN apt-get update -qq && apt-get install -y \
     libssl-dev \
     libreadline-dev \
     libyaml-dev \
+    libgmp-dev \
     make \
     && rm -rf /var/lib/apt/lists/*
 
@@ -27,15 +27,15 @@ RUN apt-get update -qq && apt-get install -y \
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
-# Instala Yarn desde npm
+# Yarn desde npm
 RUN npm install -g yarn
 
 WORKDIR /app
 
-# Copia Gemfile y Gemfile.lock primero (cache de Docker)
+# Copia Gemfile y Gemfile.lock primero
 COPY Gemfile Gemfile.lock ./
 
-# Bundler y gems
+# Bundler + gems
 RUN gem install bundler -v 2.4.17
 RUN bundle config set without 'development test'
 RUN bundle install --jobs=4 --retry=3
@@ -43,7 +43,7 @@ RUN bundle install --jobs=4 --retry=3
 # Copia el resto del proyecto
 COPY . .
 
-# Dependencias Node/Yarn
+# Instala dependencias Node/Yarn
 RUN yarn install --check-files
 
 # Precompila assets de Rails
