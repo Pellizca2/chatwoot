@@ -1,10 +1,10 @@
 # Dockerfile Chatwoot definitivo para Render
-FROM ruby:3.2
+FROM ruby:3.2-slim
 
-# Variables de entorno para apt
+# Variables para que apt no pregunte nada
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Instala dependencias del sistema
+# Instala dependencias del sistema necesarias para Rails y Chatwoot
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
     curl \
@@ -47,7 +47,7 @@ RUN yarn install --check-files
 # Precompila assets de Rails
 RUN bundle exec rake assets:precompile
 
-# Expone puerto que Render usará
+# Exponer puerto que Render usará
 EXPOSE 10000
 
 # Comando para iniciar Chatwoot con Puma
