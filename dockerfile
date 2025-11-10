@@ -4,21 +4,24 @@ FROM chatwoot/chatwoot:latest
 # Directorio de trabajo
 WORKDIR /app
 
-# Copia el código del fork / repo
+# Copia tu código
 COPY . .
 
-# Instala gems de tu proyecto
+# Habilita Yarn usando Corepack (incluido en Node.js >=16)
+RUN corepack enable
+
+# Instala gems de Ruby
 RUN bundle config set without 'development test'
 RUN bundle install --jobs=4 --retry=3
 
-# Instala dependencias Node/Yarn si hay frontend changes
+# Instala dependencias Node/Yarn
 RUN yarn install --check-files
 
-# Precompila assets
+# Precompila assets de Rails
 RUN bundle exec rake assets:precompile
 
-# Exponer puerto que Render usará
+# Expone el puerto usado por Render
 EXPOSE 10000
 
-# Arrancar Puma
+# Comando para iniciar Puma
 CMD ["bundle", "exec", "puma", "-C", "config/puma.rb", "-b", "0.0.0.0", "-p", "10000"]
